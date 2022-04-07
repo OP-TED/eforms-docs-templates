@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>eu.europa.ted.eforms</groupId>
+    <artifactId>eforms-docs-templates</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>eForms Documentation Templates</name>
+    <description></description>
+
+    <properties>
+        <!-- Metadata Converter version -->
+        <mdc.version>0.0.1-SNAPSHOT</mdc.version>
+
+        <!-- Plugins versions -->
+        <exec.plugin.version>3.0.0</exec.plugin.version>
+
+        <db.host>localhost</db.host>
+        <db.port>3306</db.port>
+        <db.name>tedcvsrepo</db.name>
+        <db.username/>
+        <db.password/>
+        <asciidoc.templates.dir>${basedir}/../content</asciidoc.templates.dir>
+        <asciidoc.target.dir>${basedir}/../build/asciidoc</asciidoc.target.dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>eu.europa.ted.eforms</groupId>
+            <artifactId>eforms-metadata-converter</artifactId>
+            <version>${mdc.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>run-processor</id>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                            <configuration>
+                                <executable>java</executable>
+                                <executableDependency>
+                                    <groupId>eu.europa.ted.eforms</groupId>
+                                    <artifactId>eforms-metadata-converter</artifactId>
+                                </executableDependency>
+                                <arguments>
+                                    <argument>-classpath</argument>
+                                    <classpath/>
+                                    <argument>org.springframework.boot.loader.JarLauncher</argument>
+                                    <argument>process-asciidoc</argument>
+                                    <argument>${asciidoc.templates.dir}</argument>
+                                    <argument>${asciidoc.target.dir}</argument>
+                                </arguments>
+                                <environmentVariables>
+                                    <SPRING_DATASOURCE_URL>jdbc:mysql://${db.host}:${db.port}/${db.name}?serverTimezone=CET</SPRING_DATASOURCE_URL>
+                                    <SPRING_DATASOURCE_USERNAME>${db.username}</SPRING_DATASOURCE_USERNAME>
+                                    <SPRING_DATASOURCE_PASSWORD>${db.password}</SPRING_DATASOURCE_PASSWORD>
+                                </environmentVariables>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

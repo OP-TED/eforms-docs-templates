@@ -1,0 +1,7 @@
+:page-toclevels: -1 // Disable Antora contents for this page.
+= TED Application Docs
+
+This internal website, consolidates the documentation of all TED Ecosystem applications. 
+
+== Codelists
+include::partial$codelists.adoc[]

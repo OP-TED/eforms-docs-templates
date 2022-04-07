@@ -1,0 +1,1 @@
+* xref:MDC::index.adoc[Home]

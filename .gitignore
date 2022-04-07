@@ -1,0 +1,20 @@
+build
+logs
+
+# Antora
+antora-playbook-local.yml
+
+# NodeJS
+node_modules
+
+# Eclipse
+.classpath
+.project
+.settings
+
+# Visual Studio Code
+.vscode
+
+# Maven
+target
+

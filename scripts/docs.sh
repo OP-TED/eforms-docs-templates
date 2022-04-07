@@ -1,0 +1,218 @@
+#!/usr/bin/env bash
+#============================================================================================================
+# HEADER
+#============================================================================================================
+
+#% SYNOPSIS
+#+   ${SCRIPT_NAME} -s dbPassword -u <dbUsername> [-d <logsDir] [-l <logFile>] [-o <dbHost>] [-n <dbName>]
+#+     [-p dbPort] [-r sourceDir>] [-t <targetDir>] [-chiqv]
+#%
+#% DESCRIPTION
+#%   Processes a folder with Asciidoc files and Freemarker templates using Metadata Converter and a database.
+#%   The Medatata Converter executable is downloaded as a Maven dependency.
+#%   The output is a folder with:
+#%     - The ".adoc" files kept intact
+#%     - ".adoc" files generated from Freemarker the templates ("*.ftl") and populated
+#%       with information from the database.
+#%
+#% OPTIONS
+#============================================================================================================
+#%   -c         Enables usage of colours in logging.
+#%   -d DIR     Define the directory for logs (default: "logs"). Ignored if option -l is used.
+#%   -h         Print this help.
+#%   -i         Print script information
+#%   -l FILE    Log messages to FILE. If not set, a time-based log is used.
+#%   -n STRING  Database name.
+#%              Default value: tedcvsrepo
+#%   -o STRING  Database host.
+#%              Default value: localhost
+#%   -p INTEGER Database port.
+#%              Default value: 3306
+#%   -q         Don't print messages to standard output.
+#%   -r DIR     Source directory for documentation.
+#%              Default: ${SCRIPT_DIR}/../content
+#%   -s         Database password.
+#%   -t DIR     Target directory for generated documentation.
+#%              Default: ${SCRIPT_DIR}/../build/asciidoc
+#%   -u STRING  Database username
+#%   -v         Be verbose.
+#%
+#% EXAMPLES
+#%  - Process using defaults: ${SCRIPT_NAME} -u myuser -s mypassword
+#%  - Process using database "dramempe.cc.cec.eu.int:3306":
+#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword
+#%  - Process specifying input and output folder:
+#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword -r source_dir -t build
+#%
+#============================================================================================================
+#- IMPLEMENTATION
+#-    version         ${SCRIPT_NAME} 1.0.0
+#-
+#============================================================================================================
+#  DEBUG OPTION
+#    set -n  # Uncomment to check your syntax, without execution.
+#    set -x  # Uncomment to debug this shell script
+#
+#============================================================================================================
+# END_OF_HEADER
+#============================================================================================================
+
+#============
+# VARIABLES #
+#============
+
+# Exit codes
+#-----------
+readonly BUILD_ERROR=5
+readonly RUNTIME_ERROR=6
+
+# Global variables
+#------------------
+readonly SCRIPT_DIR=$(dirname "$(readlink -f "${0}")")
+
+SESSION_ID=$(date +%s)
+
+# Configuration variables
+#------------------------
+readonly script_opts="cd:hil:o:p:r:s:qt:u:v"
+
+# Option variables
+#-----------------
+LOGS_DIR="logs"
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=tedcvsrepo
+DB_USERNAME=""
+DB_PASSWORD=""
+SOURCE_DIR="${SCRIPT_DIR}/../content"
+TARGET_DIR="${SCRIPT_DIR}/../build/asciidoc"
+
+# Miscellaneous variables
+#------------------------
+
+#==============#
+# SOURCE FILES #
+#==============#
+. "${SCRIPT_DIR}/generic_functions.sh"
+
+#===========#
+# FUNCTIONS #
+#===========#
+
+# Script initialization and cleanup functions
+# -------------------------------------------
+
+# Loads arguments.
+load_args() {
+    # Read the options and set variables 
+    while getopts "${script_opts}" o; do
+        case "$o" in
+            c) USE_COLOURS=true ;;
+            d) LOGS_DIR=${OPTARG} ;;
+            h) usagefull; exit 0 ;;
+            i) scriptinfo; exit 0 ;;
+            l) LOG_FILE=${OPTARG} ;;
+            n) DB_NAME=${OPTARG:-${DB_NAME}} ;;
+            o) DB_HOST=${OPTARG:-${DB_HOST}} ;;
+            p) DB_PORT=${OPTARG:-${DB_PORT}} ;;
+            r) SOURCE_DIR=${OPTARG:-${SOURCE_DIR}} ;;
+            s) DB_PASSWORD=${OPTARG-${DB_PASSWORD}} ;;
+            t) TARGET_DIR=${OPTARG:-${TARGET_DIR}} ;;
+            q) QUIET=true ;;
+            u) DB_USERNAME=${OPTARG-${DB_USERNAME}} ;;
+            v) VERBOSE=true ;;
+            \?) die "${INVALID_ARGS}" "Invalid option: [-${OPTARG}]." ;;
+            :) die "${INVALID_ARGS}" "Option [-${OPTARG}] requires an argument." ;;
+        esac
+    done
+
+    shift $((OPTIND-1))
+}
+
+# Loads configuration properties, performs sanity checks and initializes variables.
+load_verify_props() {
+    # Check input arguments
+    [ ! -d "${SOURCE_DIR}" ] && die "${INVALID_ARGS}" "Source directory [${SOURCE_DIR}] not found."
+    [ -z "${TARGET_DIR}" ] && die "${INVALID_ARGS}" "Undefined target directory."
+    [ -z "${DB_HOST}" ] && die "${INVALID_ARGS}" "Undefined database host."
+    [ -z "${DB_NAME}" ] && die "${INVALID_ARGS}" "Undefined database name."
+    [ -z "${DB_PORT}" ] && die "${INVALID_ARGS}" "Undefined database port."
+    [ -z "${DB_USERNAME}" ] && die "${INVALID_ARGS}" "Undefined database username."
+    [ -z "${DB_PASSWORD}" ] && die "${INVALID_ARGS}" "Undefined database password."
+
+    # Set defaults for undefined properties
+    export BASE_DIR="${SCRIPT_DIR}" # Used by mvnw
+
+    # Set derived properties
+    SOURCE_DIR="$(readlink -m "${SOURCE_DIR}")"
+    TARGET_DIR="$(readlink -m "${TARGET_DIR}")"
+}
+
+# Tasks to execute when script exits.
+on_exit() {
+    rc=${?}
+    cleanup ${rc}
+
+    show_execution_time
+}
+
+# Script initialization.
+init() {
+    set_step init-load_args
+    load_args "$@"
+    unset_step
+
+    set_step init-dirs
+    mkdir -p "${LOGS_DIR}"
+    unset_step
+
+    set_step init-logging
+    init_logging ${USE_COLOURS} "${LOG_FILE:-${LOGS_DIR}/$(date +%Y%m%d)_${SCRIPT_NAME}.log}"
+    unset_step
+
+    debug "Starting script. Command line: ${SCRIPT_NAME} ${args[*]}"
+
+    set_step init-load_verify_props
+    load_verify_props
+    unset_step
+}
+
+# Tasks and utilities
+# -------------------
+
+# Process folder with Asciidoc files and Freemarker templates.
+process_templates() {
+    set_step templates-process
+
+    info "Processing folder [${SOURCE_DIR}]. Output folder: [${TARGET_DIR}]"
+
+    local _cmd="${SCRIPT_DIR}/mvnw exec:exec@run-processor \
+        -f ${SCRIPT_DIR} \
+        -Dasciidoc.templates.dir=${SOURCE_DIR} \
+        -Dasciidoc.target.dir=${TARGET_DIR} \
+        -Ddb.host=${DB_HOST} -Ddb.port=${DB_PORT} -Ddb.name=${DB_NAME} -Ddb.username=${DB_USERNAME} -Ddb.password=${DB_PASSWORD}"
+
+    debug "Command: used: $(echo "${_cmd}"|sed -r 's|(password=).*$|\1****|g')"
+
+    ${_cmd}
+
+    unset_step
+}
+
+# Main workflow
+main() {
+    header "EFORMS TEMPLATES PROCESSOR"
+
+    process_templates
+
+    success "Successfully executed script."
+}
+
+trap cleanup EXIT
+
+trap 'on_exit' EXIT
+
+init "$@"
+
+main

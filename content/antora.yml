@@ -1,0 +1,5 @@
+name: MDC
+title: TED Ecosystem Docs
+version: master
+nav:
+- modules/ROOT/nav.adoc

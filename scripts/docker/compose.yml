@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  mdd:
+    container_name: mdd
+    image: mysql
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - ${SQL_DIR}:/docker-entrypoint-initdb.d
+      - ${MYSQL_CONF_DIR}:/etc/mysql/conf.d
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    expose:
+      - "${DB_PORT}"
+    healthcheck:
+      test: "mysqladmin -h$$(hostname -i) -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} status &>/dev/null"
+      interval: 10s
+      retries: 15
