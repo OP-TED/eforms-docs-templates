@@ -222,6 +222,13 @@ array_contains() {
     echo ${_match}
 }
 
+# Replaces "password=..." with asterisks.
+hide_password() {
+    local -r _message="${1}"
+
+    echo "${_message}"|sed -r 's|(password=).*?(\s?\|$)|\1****|g'
+}
+
 #===================#
 # UTILITY FUNCTIONS #
 #===================#

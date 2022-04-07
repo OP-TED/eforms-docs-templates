@@ -34,7 +34,7 @@
 #%  - Start the database using defaults: ${SCRIPT_NAME} start
 #%  - Stop the database using: ${SCRIPT_NAME} start
 #%  - Start the database listening on port 6000 with username=tester and password=tester:
-#%    ${SCRIPT_NAME} -p 6000 -u tester -s tester
+#%    ${SCRIPT_NAME} -p 6000 -u tester -s tester start
 #%
 #============================================================================================================
 #- IMPLEMENTATION
@@ -167,8 +167,6 @@ init() {
     set_step init-logging
     init_logging ${USE_COLOURS} "${LOG_FILE:-${LOGS_DIR}/$(date +%Y%m%d)_${SCRIPT_NAME}.log}"
     unset_step
-
-    debug "Starting script. Command line: ${SCRIPT_NAME} ${args[*]}"
 
     set_step init-load_verify_props
     load_verify_props
