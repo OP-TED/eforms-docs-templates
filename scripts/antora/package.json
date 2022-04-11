@@ -8,6 +8,7 @@
     "@antora/cli": "2.3",
     "antora-eui-lunr": "git://github.com/OP-TED/antora-eui-lunr",
     "antora-eui-site-generator-lunr": "git://github.com/OP-TED/antora-eui-site-generator-lunr",
+    "@antora/site-generator-default": "^3.0.1",
     "global-agent": "^3.0.0",
     "gulp": "^4.0.2",
     "gulp-connect": "^5.7.0",
