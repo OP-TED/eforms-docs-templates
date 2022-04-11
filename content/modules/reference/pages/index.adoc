@@ -1,0 +1,5 @@
+= eForms Metadata Reference
+
+xref:eforms:reference:code-lists/index.adoc[]
+xref:eforms:reference:business-terms/index.adoc[]
+xref:eforms:reference:business-rules/index.adoc[]

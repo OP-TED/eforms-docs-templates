@@ -1,5 +1,5 @@
-name: MDC
-title: TED Ecosystem Docs
-version: master
+name: eforms
+title: eForms Developer Docs
+version: 0.6.0
 nav:
-- modules/ROOT/nav.adoc
+- modules/reference/nav.adoc

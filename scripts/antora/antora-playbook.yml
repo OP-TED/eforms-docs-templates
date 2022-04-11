@@ -1,7 +1,7 @@
 site:
   title: TED Developer Docs
   url: https://localhost:5000
-  start_page: MDC::index.adoc
+  start_page: eforms:reference:index.adoc
 content:
   edit_url: false
   sources:
@@ -12,7 +12,7 @@ ui:
   bundle:
     url: https://github.com/OP-TED/antora-eui/releases/download/ui-bundle/master/ui-bundle.zip
     snapshot: true
-  supplemental_files: ./supplemental-ui
+  # supplemental_files: ./supplemental-ui
 output: 
   clean: true 
   dir: ./site
