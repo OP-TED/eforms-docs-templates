@@ -1,29 +1,29 @@
-<#list codelists?filter(cl -> cl.official && !cl.parent_id?has_content) as codelist>
-=== `${codelist.id}`
+<#list codelists?filter(cli -> cli.codeList.official && !cli.codeList.parentId?has_content) as codeListInfo>
+=== `${codeListInfo.codeList.id}`
 [horizontal]
-<#if codelist.description?trim?has_content!false>
-Description:: ${codelist.description}
+<#if codeListInfo.codeList.description?trim?has_content!false>
+Description:: ${codeListInfo.codeList.description}
 </#if>
-<#if codelist.tailored?has_content!false>
-Tailored by:: ${codelist.tailored?map(tcl -> "<<_" + tcl.id?replace("-", "_") + ",`" + tcl.id + "`>>")?join(", ")}
+<#if codeListInfo.tailored?has_content!false>
+Tailored by:: ${codeListInfo.tailored?map(tcl -> "<<_" + tcl.id?replace("-", "_") + ",`" + tcl.id + "`>>")?join(", ")}
 </#if>
-<#if codelist.parent_id?has_content!false>
-Subset of:: <<_${codelist.parent_id?replace("-", "_")},`${codelist.parent_id}`>>
+<#if codeListInfo.codeList.parentId?has_content!false>
+Subset of:: <<_${codeListInfo.codeList.parentId?replace("-", "_")},`${codeListInfo.codeList.parentId}`>>
 </#if> 
-<#if codelist.type?has_content!false>
-Structure:: ${codelist.type}
+<#if codeListInfo.codeList.type?has_content!false>
+Structure:: ${codeListInfo.codeList.type}
 </#if> 
-<#if codelist.source_canonical_uri?trim?has_content!false>
-URI:: ${codelist.source_canonical_uri}
+<#if codeListInfo.codeList.sourceCanonicalUri?trim?has_content!false>
+URI:: ${codeListInfo.codeList.sourceCanonicalUri}
 </#if> 
-<#if codelist.source_version?has_content!false>
-Version:: ${codelist.source_version}
+<#if codeListInfo.codeList.sourceVersion?has_content!false>
+Version:: ${codeListInfo.codeList.sourceVersion}
 </#if>
-<#if codelist.business_terms?has_content!false>
-Used in:: ${codelist.business_terms?map(bt -> "`" + bt.id + "` _" + bt.description + "_")?join(", ")}
+<#if codeListInfo.businessTerms?has_content!false>
+Used in:: ${codeListInfo.businessTerms?map(bt -> "`" + bt.id + "` _" + bt.description + "_")?join(", ")}
 </#if>
-<#if codelist.codes?has_content!false>
-Codes:: ${codelist.codes?map(c -> "`" + c.value + "`")?join(", ")}
+<#if codeListInfo.codes?has_content!false>
+Codes:: ${codeListInfo.codes?map(c -> "`" + c.value + "`")?join(", ")}
 </#if>
 
 '''

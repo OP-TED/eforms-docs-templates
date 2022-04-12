@@ -231,7 +231,7 @@ generate_site() {
     SITE_DIR="${PREVIEW_SITE_DIR}" npm run build
     git add --all;git commit -q -m 'Updated site'
 
-    info "Successfully generated documentation site under [${SITE_DIR}]"
+    info "Successfully generated documentation site under [${PREVIEW_SITE_DIR}]"
 
     popd "${SCRIPT_DIR}" 1>/dev/null || return
 
@@ -258,7 +258,6 @@ main() {
             generate_site
             live_preview
             ;;
-        stop) stop_db ;;
     esac
 
     success "Successfully executed script."
