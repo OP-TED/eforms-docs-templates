@@ -210,6 +210,9 @@ process_templates() {
 
     ${_cmd}
 
+    _rc=${?}
+    [ "${_rc}" != "0" ] && die "${RUNTIME_ERROR}" "Failed to process templates"
+
     unset_step
 }
 
