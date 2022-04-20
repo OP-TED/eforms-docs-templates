@@ -58,7 +58,9 @@
                                     <classpath/>
                                     <argument>org.springframework.boot.loader.JarLauncher</argument>
                                     <argument>process-asciidoc</argument>
+                                    <argument>--source</argument>
                                     <argument>${asciidoc.templates.dir}</argument>
+                                    <argument>--output</argument>
                                     <argument>${asciidoc.target.dir}</argument>
                                 </arguments>
                                 <environmentVariables>

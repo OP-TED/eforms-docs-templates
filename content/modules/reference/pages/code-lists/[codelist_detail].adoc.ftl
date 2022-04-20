@@ -31,5 +31,3 @@ Used in:: ${codelist_detail.businessTerms?map(bt -> "`" + bt.id + "` _" + bt.des
 <#if codelist_detail.codes?has_content!false>
 Codes:: ${codelist_detail.codes?map(c -> "`" + c.value + "`")?join(", ")}
 </#if>
-
-'''
