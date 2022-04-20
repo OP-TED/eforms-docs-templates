@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-#============================================================================================================
+#=============================================================================================================
 # HEADER
-#============================================================================================================
+#=============================================================================================================
 
 #% SYNOPSIS
 #+   ${SCRIPT_NAME} -s dbPassword -u <dbUsername> [-d <logsDir] [-l <logFile>] [-o <dbHost>] [-n <dbName>]
-#+     [-p dbPort] [-r sourceDir>] [-t <targetDir>] [-chiqv]
+#+     [-p dbPort] [-r sourceDir>] [-t <targetDir>] [-chiqv] ACTION
 #%
 #% DESCRIPTION
 #%   Processes a folder with Asciidoc files and Freemarker templates using Metadata Converter and a database.
@@ -16,7 +16,10 @@
 #%       with information from the database.
 #%
 #% OPTIONS
-#============================================================================================================
+#=============================================================================================================
+#%   ACTION     The action to perform. Accepted values:
+#%              - process_templates: Processes the source folder and generates Asciidoc with values from database.
+#%              - preview: Generates a local documentation site using Antora and starts a live preview server.
 #%   -c         Enables usage of colours in logging.
 #%   -d DIR     Define the directory for logs (default: "logs"). Ignored if option -l is used.
 #%   -h         Print this help.
@@ -44,18 +47,18 @@
 #%  - Process specifying input and output folder:
 #%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword -r source_dir -t build
 #%
-#============================================================================================================
+#=============================================================================================================
 #- IMPLEMENTATION
 #-    version         ${SCRIPT_NAME} 1.0.0
 #-
-#============================================================================================================
+#=============================================================================================================
 #  DEBUG OPTION
 #    set -n  # Uncomment to check your syntax, without execution.
 #    set -x  # Uncomment to debug this shell script
 #
-#============================================================================================================
+#=============================================================================================================
 # END_OF_HEADER
-#============================================================================================================
+#=============================================================================================================
 
 #============
 # VARIABLES #
@@ -68,7 +71,11 @@ readonly RUNTIME_ERROR=6
 
 # Global variables
 #------------------
-readonly SCRIPT_DIR=$(dirname "$(readlink -f "${0}")")
+readonly SCRIPT_DIR="$(dirname "$(readlink -f "${0}")")"
+
+readonly PROJECT_DIR="${SCRIPT_DIR}/.."
+readonly PREVIEW_DIR="${PROJECT_DIR}/build/preview"
+readonly PREVIEW_SITE_DIR="${PREVIEW_DIR}/site"
 
 SESSION_ID=$(date +%s)
 
@@ -80,6 +87,7 @@ readonly script_opts="cd:hil:o:p:r:s:qt:u:v"
 #-----------------
 LOGS_DIR="logs"
 
+ACTION=""
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=tedcvsrepo
@@ -128,11 +136,18 @@ load_args() {
     done
 
     shift $((OPTIND-1))
+
+    ACTION="${1}"
 }
 
 # Loads configuration properties, performs sanity checks and initializes variables.
 load_verify_props() {
     # Check input arguments
+    case ${ACTION} in
+        "process_templates"|"preview") ;;
+        *) die "${INVALID_ARGS}" "Unknown action [${ACTION}]. Accepted values: [process_templates, preview]." ;;
+    esac
+
     [ ! -d "${SOURCE_DIR}" ] && die "${INVALID_ARGS}" "Source directory [${SOURCE_DIR}] not found."
     [ -z "${TARGET_DIR}" ] && die "${INVALID_ARGS}" "Undefined target directory."
     [ -z "${DB_HOST}" ] && die "${INVALID_ARGS}" "Undefined database host."
@@ -171,8 +186,6 @@ init() {
     init_logging ${USE_COLOURS} "${LOG_FILE:-${LOGS_DIR}/$(date +%Y%m%d)_${SCRIPT_NAME}.log}"
     unset_step
 
-    debug "Starting script. Command line: ${SCRIPT_NAME} ${args[*]}"
-
     set_step init-load_verify_props
     load_verify_props
     unset_step
@@ -193,9 +206,47 @@ process_templates() {
         -Dasciidoc.target.dir=${TARGET_DIR} \
         -Ddb.host=${DB_HOST} -Ddb.port=${DB_PORT} -Ddb.name=${DB_NAME} -Ddb.username=${DB_USERNAME} -Ddb.password=${DB_PASSWORD}"
 
-    debug "Command: used: $(echo "${_cmd}"|sed -r 's|(password=).*$|\1****|g')"
+    debug "Command: used: $(hide_password "${_cmd}")"
 
     ${_cmd}
+
+    _rc=${?}
+    [ "${_rc}" != "0" ] && die "${RUNTIME_ERROR}" "Failed to process templates"
+
+    unset_step
+}
+
+# Generates a documentation site from the target folder.
+generate_site() {
+    set_step site-generate
+
+    info "Generating documentation from [${TARGET_DIR}]"
+
+    debug "Copying Antora resources and scripts to [${PREVIEW_DIR}]"
+    mkdir -p "${PREVIEW_DIR}/content"
+
+    cp -pR "${SCRIPT_DIR}/antora/"* "${PREVIEW_DIR}"
+    cp -pR "${TARGET_DIR}/"* "${PREVIEW_DIR}/content"
+    git -C "${PREVIEW_DIR}" init
+
+    pushd "${PREVIEW_DIR}" 1>/dev/null || return
+    npm install
+    SITE_DIR="${PREVIEW_SITE_DIR}" npm run build
+    git add --all;git commit -q -m 'Updated site'
+
+    info "Successfully generated documentation site under [${PREVIEW_SITE_DIR}]"
+
+    popd "${SCRIPT_DIR}" 1>/dev/null || return
+
+    unset_step
+}
+
+# Starts a HTTP server serving the generated documentation site.
+live_preview() {
+    set_step site-preview
+
+    info "Starting HTTP server to preview the generated documentation site."
+    SITE_DIR="${PREVIEW_SITE_DIR}" npm run live-preview
 
     unset_step
 }
@@ -204,7 +255,13 @@ process_templates() {
 main() {
     header "EFORMS TEMPLATES PROCESSOR"
 
-    process_templates
+    case ${ACTION} in
+        process_templates) process_templates ;;
+        preview)
+            generate_site
+            live_preview
+            ;;
+    esac
 
     success "Successfully executed script."
 }
