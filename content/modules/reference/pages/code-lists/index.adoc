@@ -10,5 +10,3 @@ include::partial$code-lists/tailored.adoc[]
 
 == Technical Codelists
 include::partial$code-lists/technical.adoc[]
-
-

@@ -24,23 +24,37 @@ if (process.env['SEARCH_ENABLED'] === 'true') {
     playbookGenerator = 'site-generator-default'
 }
 
+const { ncp: ncp } = require('ncp')
 const { reload: livereload } = process.env.LIVERELOAD === 'true' ? require('gulp-connect') : {}
 const { series, src, watch } = require('gulp')
 const yaml = require('js-yaml')
 
+const templatesSourceDir = process.env['TEMPLATES_SOURCE_DIR'] || 'build/asciidoc'
 const playbookFilename = process.env['ANTORA_PLAYBOOK'] || 'antora-playbook.yml'
 const playbook = yaml.safeLoad(fs.readFileSync(playbookFilename, 'utf8'))
 const outputDir = process.env['SITE_DIR'] || (playbook.output || {}).dir || 'build/site'
 const serverConfig = { name: 'Preview Site', livereload, port: 5000, root: outputDir }
 const antoraArgs = ['--playbook', playbookFilename, '--generator', playbookGenerator, '--to-dir', outputDir ]
-const watchPatterns = playbook.content.sources.filter((source) => !source.url.includes(':')).reduce((accum, source) => {
-  accum.push(`${source.url}/${source.start_path ? source.start_path + '/' : ''}antora.yml`)
-  accum.push(`${source.url}/${source.start_path ? source.start_path + '/' : ''}**/*.adoc`)
-  return accum
-}, [])
+const sourceWatchPatterns = playbook.content.sources.filter((source) => !source.url.includes(':')).reduce((accum, source) => {
+    accum.push(`${source.url}/${source.start_path ? source.start_path + '/' : ''}antora.yml`)
+    accum.push(`${source.url}/${source.start_path ? source.start_path + '/' : ''}**/*.adoc`)
+    return accum
+  }, [])
+const templatesWatchPatterns = [ templatesSourceDir + '/' ]
+
+async function updateSources(done) {
+    playbook.content.sources.filter((source) => !source.url.includes(':')).every((source) => {
+        if(source.url == '.') {
+            ncp(templatesSourceDir + '/', `${source.url}/${source.start_path}`)
+            return false
+        }
+    })
+
+    done()
+}
 
 function generate (done) {
-  generator(antoraArgs, process.env)
+    generator(antoraArgs, process.env)
     .then(() => done())
     .catch((err) => {
       console.log(err)
@@ -49,10 +63,15 @@ function generate (done) {
 }
 
 function serve (done) {
+  ncp(templatesSourceDir, outputDir)
+
   connect.server(serverConfig, function () {
     this.server.on('close', done)
-    watch(watchPatterns, generate)
-    if (livereload) watch(this.root).on('change', (filepath) => src(filepath, { read: false }).pipe(livereload()))
+    if (livereload) {
+        watch(templatesWatchPatterns, {delay: 5000}, updateSources)
+        watch(sourceWatchPatterns, generate)
+        watch(this.root).on('change', (filepath) => src(filepath, { read: false }).pipe(livereload()))
+    }
   })
 }
 

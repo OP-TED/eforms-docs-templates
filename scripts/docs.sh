@@ -148,13 +148,7 @@ load_verify_props() {
         *) die "${INVALID_ARGS}" "Unknown action [${ACTION}]. Accepted values: [process_templates, preview]." ;;
     esac
 
-    [ ! -d "${SOURCE_DIR}" ] && die "${INVALID_ARGS}" "Source directory [${SOURCE_DIR}] not found."
     [ -z "${TARGET_DIR}" ] && die "${INVALID_ARGS}" "Undefined target directory."
-    [ -z "${DB_HOST}" ] && die "${INVALID_ARGS}" "Undefined database host."
-    [ -z "${DB_NAME}" ] && die "${INVALID_ARGS}" "Undefined database name."
-    [ -z "${DB_PORT}" ] && die "${INVALID_ARGS}" "Undefined database port."
-    [ -z "${DB_USERNAME}" ] && die "${INVALID_ARGS}" "Undefined database username."
-    [ -z "${DB_PASSWORD}" ] && die "${INVALID_ARGS}" "Undefined database password."
 
     # Set defaults for undefined properties
     export BASE_DIR="${SCRIPT_DIR}" # Used by mvnw
@@ -200,6 +194,13 @@ process_templates() {
 
     info "Processing folder [${SOURCE_DIR}]. Output folder: [${TARGET_DIR}]"
 
+    [ ! -d "${SOURCE_DIR}" ] && die "${INVALID_ARGS}" "Source directory [${SOURCE_DIR}] not found."
+    [ -z "${DB_HOST}" ] && die "${INVALID_ARGS}" "Undefined database host."
+    [ -z "${DB_NAME}" ] && die "${INVALID_ARGS}" "Undefined database name."
+    [ -z "${DB_PORT}" ] && die "${INVALID_ARGS}" "Undefined database port."
+    [ -z "${DB_USERNAME}" ] && die "${INVALID_ARGS}" "Undefined database username."
+    [ -z "${DB_PASSWORD}" ] && die "${INVALID_ARGS}" "Undefined database password."
+
     local _cmd="${SCRIPT_DIR}/mvnw exec:exec@run-processor \
         -f ${SCRIPT_DIR} \
         -Dasciidoc.templates.dir=${SOURCE_DIR} \
@@ -228,15 +229,22 @@ generate_site() {
     cp -pR "${SCRIPT_DIR}/antora/"* "${PREVIEW_DIR}"
     cp -pR "${TARGET_DIR}/"* "${PREVIEW_DIR}/content"
     git -C "${PREVIEW_DIR}" init
+    cat <<EOM > "${PREVIEW_DIR}/.gitignore"
+    node_modules
+    site
+EOM
+    git -C "${PREVIEW_DIR}" add --all
+    git -C "${PREVIEW_DIR}" commit -q -m 'Updated content'
 
     pushd "${PREVIEW_DIR}" 1>/dev/null || return
+
     npm install
+
     SITE_DIR="${PREVIEW_SITE_DIR}" npm run build
-    git add --all;git commit -q -m 'Updated site'
 
     info "Successfully generated documentation site under [${PREVIEW_SITE_DIR}]"
 
-    popd "${SCRIPT_DIR}" 1>/dev/null || return
+    popd 1>/dev/null || return
 
     unset_step
 }
@@ -246,7 +254,10 @@ live_preview() {
     set_step site-preview
 
     info "Starting HTTP server to preview the generated documentation site."
-    SITE_DIR="${PREVIEW_SITE_DIR}" npm run live-preview
+
+    pushd "${PREVIEW_DIR}" 1>/dev/null || return
+    LIVERELOAD=true TEMPLATES_SOURCE_DIR="${TARGET_DIR}" SITE_DIR="${PREVIEW_SITE_DIR}" npm run live-preview
+    popd 1>/dev/null || return
 
     unset_step
 }
