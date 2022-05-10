@@ -3,10 +3,9 @@ We need a page for every business rule.
 The page will display all the details about the rule.
 ////
 
-== ${business_rule_details.noticeId!"Every notice sub-type"}
-Blah blah
+== ${notice_type_details.noticeId!"Every notice sub-type"}
 
-<#list business_rule_details.ruleTypes as ruleType>
+<#list notice_type_details.ruleTypes as ruleType>
 === ${ruleType.type!"-"}
 [cols="<2,<7,>1"]
 |====

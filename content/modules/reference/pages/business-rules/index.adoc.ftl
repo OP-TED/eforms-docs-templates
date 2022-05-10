@@ -2,9 +2,8 @@
 
 The following Business Rules are included in version X.X.X of eForms SDK.
 
-<#list business_rules as noticeType>
+<#list notice_types as noticeType>
 == ${noticeType.noticeId!"Every notice sub-type"}
-Blah blah
 
 <#list noticeType.ruleTypes as ruleType>
 === ${ruleType.type!"-"}
