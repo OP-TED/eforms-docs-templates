@@ -1,7 +1,7 @@
-== ${notice_type_details.noticeId}
+== `${notice_type_details.noticeId}`
 
 <#list notice_type_details.ruleTypes as ruleType>
-=== ${ruleType.type!"-"}
+=== `${ruleType.type!"-"}`
 [cols="<2,<7,>1"]
 |====
 h| Field h|Details h|Severity 

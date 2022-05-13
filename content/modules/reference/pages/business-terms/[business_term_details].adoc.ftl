@@ -1,8 +1,16 @@
-////
-We need a page for every business term.
-The page will contain the same details on the BT
-as the index.adoc. Additionally it will contain
-details of all the fields of the business term as well
-as a list of all related business rules grouped by
-rule type.
-////
+== `${business_term_details.id}`
+[horizontal]
+<#if business_term_details.description?has_content!false>
+Description:: ${business_term_details.description}
+</#if>
+<#if business_term_details.type?has_content!false>
+Type:: ${business_term_details.type}
+</#if>
+<#if business_term_details.fields?has_content!false>
+Fields::
++
+[horizontal]
+  <#list business_term_details.fields as field>
+  `${field.id}`::: ${field.description}
+  </#list>
+</#if>
