@@ -1,36 +1,29 @@
-////
-We need one page per codelist
-The page will contain the same details as the index.adoc
-for the codelist it documents. Additionally it will contain 
-all the codes in the list together with their descriptions.
-////
-
-=== `${codelist_details.codeList.id}` codelist
-[horizontal]
+= `${codelist_details.codeList.id}` codelist
 <#if codelist_details.codeList.description?trim?has_content!false>
-Description:: ${codelist_details.codeList.description}
+${codelist_details.codeList.description}
 </#if>
+[horizontal]
+<#if codelist_details.codeList.sourceVersion?has_content!false>
+Version:: ${codelist_details.codeList.sourceVersion}
+</#if>
+<#if codelist_details.codeList.sourceCanonicalUri?trim?has_content!false>
+URI:: ${codelist_details.codeList.sourceCanonicalUri}
+</#if> 
 <#if codelist_details.codeList.parentId?has_content!false>
-Subset of:: xref:code-lists/${codelist_details.codeList.parentId}.adoc[${codelist_details.codeList.parentId}]
+Subset of:: xref:code-lists/${codelist_details.codeList.parentId}.adoc[`${codelist_details.codeList.parentId}`]
 </#if> 
 <#if codelist_details.tailored?has_content!false>
-Tailored by:: ${codelist_details.tailored?map(tcl -> "<<_" + tcl.id?replace("-", "_") + ",`" + tcl.id + "`>>")?join(", ")}
+Tailored by:: ${codelist_details.tailored?map(tcl -> "xref:code-lists/" + tcl.id + ".adoc[`" + tcl.id + "`]")?join(", ")}
 </#if>
 <#if codelist_details.codeList.type?has_content!false>
 Structure:: ${codelist_details.codeList.type}
 </#if> 
-<#if codelist_details.codeList.sourceCanonicalUri?trim?has_content!false>
-URI:: ${codelist_details.codeList.sourceCanonicalUri}
-</#if> 
-<#if codelist_details.codeList.sourceVersion?has_content!false>
-Version:: ${codelist_details.codeList.sourceVersion}
-</#if>
 <#if codelist_details.businessTerms?has_content!false>
-Used in:: ${codelist_details.businessTerms?map(bt -> "xref:business-terms/" + bt.id + ".adoc[" + bt.id + "] _" + bt.description + "_")?join(", ")}
+Used in:: ${codelist_details.businessTerms?map(bt -> "xref:business-terms/" + bt.id + ".adoc[`" + bt.id + "`] " + bt.description)?join(", ")}
 </#if>
 <#if codelist_details.codes?has_content!false>
-Codes::
-+
+
+== Codes
 [horizontal]
   <#list codelist_details.codes as codelist>
   `${codelist.value}`::: ${codelist.description}
