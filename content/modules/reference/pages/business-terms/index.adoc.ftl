@@ -2,7 +2,7 @@
 :icons: font
 
 <#macro btlist terms>
-[cols="1,4,1,1", role="fixedlayout"]
+[cols="1,4,1,1", role="fixed-layout"]
 |===
 h| Identifier h| Description h| Data Type h| Details
 <#list terms?sort_by("sortOrder") as term>

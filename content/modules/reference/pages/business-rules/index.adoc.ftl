@@ -14,7 +14,7 @@ The following rules apply to every notice (grouped by type of rule):
 
 <#list rules_without_notice_sub_type as ruleType>
 === `${ruleType.type!"-"}`
-[cols="<4,<6,>1", role="fixedlayout"]
+[cols="<4,<6,>1", role="fixed-layout"]
 |====
 h| Field h|Details h|Severity 
 <#list ruleType.rules as rule>

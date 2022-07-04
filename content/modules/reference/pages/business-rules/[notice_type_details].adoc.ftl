@@ -2,7 +2,7 @@
 
 <#list notice_type_details.ruleTypes?sort_by("type") as ruleType>
 == `${ruleType.type!"-"}`
-[cols="<3,<6,>1", role="fixedlayout"]
+[cols="<3,<6,>1", role="fixed-layout"]
 |====
 h| Field h|Details h|Severity 
 <#list ruleType.rules as rule>
