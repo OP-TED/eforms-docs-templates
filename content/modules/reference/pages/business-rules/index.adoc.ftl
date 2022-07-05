@@ -39,7 +39,7 @@ Value must be one of the codes in xref:code-lists/${rule.codeListId}.adoc[`${rul
 <#assign word = "applies">
 </#if> 
 <#if rule.expression?has_content!false>
-${rule.expression.description!""?cap_first}.
+${rule.expression.description?cap_first!""}.
 
 .Co-constraint in EFX
 [source, EFX]
