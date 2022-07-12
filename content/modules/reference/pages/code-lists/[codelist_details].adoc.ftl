@@ -1,4 +1,6 @@
 = `${codelist_details.codeList.id}` codelist
+:navtitle: Codelists
+
 <#if codelist_details.codeList.description?trim?has_content!false>
 ${codelist_details.codeList.description}
 </#if>

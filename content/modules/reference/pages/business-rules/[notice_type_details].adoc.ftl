@@ -1,4 +1,5 @@
 = Business rules for notice sub-type `${notice_type_details.noticeId}`
+:navtitle: Business Rules
 
 <#list notice_type_details.ruleTypes?sort_by("type") as ruleType>
 == `${ruleType.type!"-"}`
