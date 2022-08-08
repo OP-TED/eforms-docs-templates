@@ -30,7 +30,8 @@
         <dependency>
             <groupId>eu.europa.ted.eforms</groupId>
             <artifactId>eforms-metadata-converter</artifactId>
-            <version>${mdc.version}</version>
+	    <version>${mdc.version}</version>
+	    <classifier>app</classifier>
         </dependency>
     </dependencies>
 
