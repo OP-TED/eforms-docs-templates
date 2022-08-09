@@ -19,7 +19,7 @@
 
         <db.host>localhost</db.host>
         <db.port>3306</db.port>
-        <db.name>tedcvsrepo</db.name>
+        <db.name>TEDEFO_ACC_MDD</db.name>
         <db.username/>
         <db.password/>
         <asciidoc.templates.dir>${basedir}/../content</asciidoc.templates.dir>
