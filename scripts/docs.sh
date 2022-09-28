@@ -81,7 +81,7 @@ SESSION_ID=$(date +%s)
 
 # Configuration variables
 #------------------------
-readonly script_opts="cd:hil:o:p:r:s:qt:u:v"
+readonly script_opts="cd:hil:o:n:p:r:s:qt:u:v"
 
 # Option variables
 #-----------------
