@@ -6,3 +6,6 @@
 #
 name: eforms
 version: '@EFORMS_VERSION@'
+asciidoc:
+  attributes:
+    eforms_version: '@EFORMS_VERSION@'
