@@ -4,8 +4,8 @@
 #=============================================================================================================
 
 #% SYNOPSIS
-#+   ${SCRIPT_NAME} -s dbPassword -u <dbUsername> [-d <logsDir] [-l <logFile>] [-o <dbHost>] [-n <dbName>]
-#+     [-p dbPort] [-r sourceDir>] [-t <targetDir>] [-chiqv] ACTION
+#+   ${SCRIPT_NAME} -s dbPassword -u <dbUsername> -e <sdkVersion> [-d <logsDir] [-l <logFile>] [-o <dbHost>]
+#+     [-n <dbName>] [-p dbPort] [-r sourceDir>] [-t <targetDir>] [-chiqv] ACTION
 #%
 #% DESCRIPTION
 #%   Processes a folder with Asciidoc files and Freemarker templates using Metadata Converter and a database.
@@ -22,6 +22,7 @@
 #%              - preview: Generates a local documentation site using Antora and starts a live preview server.
 #%   -c         Enables usage of colours in logging.
 #%   -d DIR     Define the directory for logs (default: "logs"). Ignored if option -l is used.
+#%   -e STRING  Target eForms SDK version.
 #%   -h         Print this help.
 #%   -i         Print script information
 #%   -l FILE    Log messages to FILE. If not set, a time-based log is used.
@@ -81,7 +82,7 @@ SESSION_ID=$(date +%s)
 
 # Configuration variables
 #------------------------
-readonly script_opts="cd:hil:o:n:p:r:s:qt:u:v"
+readonly script_opts="cd:e:hil:o:n:p:r:s:qt:u:v"
 
 # Option variables
 #-----------------
@@ -93,6 +94,7 @@ DB_PORT=3306
 DB_NAME=tedcvsrepo
 DB_USERNAME=""
 DB_PASSWORD=""
+EFORMS_VERSION=""
 SOURCE_DIR="${SCRIPT_DIR}/../content"
 TARGET_DIR="${SCRIPT_DIR}/../build/asciidoc"
 
@@ -118,6 +120,7 @@ load_args() {
         case "$o" in
             c) USE_COLOURS=true ;;
             d) LOGS_DIR=${OPTARG} ;;
+            e) EFORMS_VERSION=${OPTARG} ;;
             h) usagefull; exit 0 ;;
             i) scriptinfo; exit 0 ;;
             l) LOG_FILE=${OPTARG} ;;
@@ -200,6 +203,7 @@ process_templates() {
     [ -z "${DB_PORT}" ] && die "${INVALID_ARGS}" "Undefined database port."
     [ -z "${DB_USERNAME}" ] && die "${INVALID_ARGS}" "Undefined database username."
     [ -z "${DB_PASSWORD}" ] && die "${INVALID_ARGS}" "Undefined database password."
+    [ -z "${EFORMS_VERSION}" ] && die "${INVALID_ARGS}" "Undefined eForms SDK version."
 
     local _cmd="${SCRIPT_DIR}/mvnw exec:exec@run-processor \
         -f ${SCRIPT_DIR} \
@@ -213,6 +217,9 @@ process_templates() {
 
     _rc=${?}
     [ "${_rc}" != "0" ] && die "${RUNTIME_ERROR}" "Failed to process templates"
+
+    info "Setting eForms SDK version to ${EFORMS_VERSION}."
+    cat "${SOURCE_DIR}/antora.yml"|sed "s|@EFORMS_VERSION@|${EFORMS_VERSION}|g" > "${TARGET_DIR}/antora.yml"
 
     unset_step
 }
