@@ -19,6 +19,7 @@
 #=============================================================================================================
 #%   ACTION     The action to perform. Accepted values:
 #%              - process_templates: Processes the source folder and generates Asciidoc with values from database.
+#%              - generate_site: Generates a local documentation site using Antora.
 #%              - preview: Generates a local documentation site using Antora and starts a live preview server.
 #%   -c         Enables usage of colours in logging.
 #%   -d DIR     Define the directory for logs (default: "logs"). Ignored if option -l is used.
@@ -42,11 +43,15 @@
 #%   -v         Be verbose.
 #%
 #% EXAMPLES
-#%  - Process using defaults: ${SCRIPT_NAME} -u myuser -s mypassword
-#%  - Process using database "dramempe.cc.cec.eu.int:3306":
-#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword
-#%  - Process specifying input and output folder:
-#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword -r source_dir -t build
+#%  - Generate Asciidoc using defaults: ${SCRIPT_NAME} -u myuser -s mypassword -e 1.1.0 process_templates
+#%  - Generate Asciidoc using database "dramempe.cc.cec.eu.int:3306":
+#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword -e 1.1.0 process_templates
+#%  - Generate Asciidoc specifying input and output folder:
+#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword -e 1.1.0 -r source_dir -t build process_templates
+#%  - Generate local documentation site using defaults:
+#%    ${SCRIPT_NAME} -u myuser -s mypassword -e 1.1.0 generate_site
+#%  - Generate local documentation site with a live preview using defaults:
+#%    ${SCRIPT_NAME} -u myuser -s mypassword -e 1.1.0 preview
 #%
 #=============================================================================================================
 #- IMPLEMENTATION
@@ -147,8 +152,8 @@ load_args() {
 load_verify_props() {
     # Check input arguments
     case ${ACTION} in
-        "process_templates"|"preview") ;;
-        *) die "${INVALID_ARGS}" "Unknown action [${ACTION}]. Accepted values: [process_templates, preview]." ;;
+        "generate_site"|"process_templates"|"preview") ;;
+        *) die "${INVALID_ARGS}" "Unknown action [${ACTION}]. Accepted values: [generate_site, process_templates, preview]." ;;
     esac
 
     [ -z "${TARGET_DIR}" ] && die "${INVALID_ARGS}" "Undefined target directory."
@@ -275,7 +280,12 @@ main() {
 
     case ${ACTION} in
         process_templates) process_templates ;;
+        generate_site)
+            process_templates
+            generate_site
+            ;;
         preview)
+            process_templates
             generate_site
             live_preview
             ;;
