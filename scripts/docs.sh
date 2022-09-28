@@ -242,8 +242,8 @@ generate_site() {
     cp -pR "${TARGET_DIR}/"* "${PREVIEW_DIR}/content"
     git -C "${PREVIEW_DIR}" init
     cat <<EOM > "${PREVIEW_DIR}/.gitignore"
-    node_modules
-    site
+node_modules
+site
 EOM
     git -C "${PREVIEW_DIR}" add --all
     git -C "${PREVIEW_DIR}" commit -q -m 'Updated content'
