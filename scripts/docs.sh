@@ -4,8 +4,8 @@
 #=============================================================================================================
 
 #% SYNOPSIS
-#+   ${SCRIPT_NAME} -s dbPassword -u <dbUsername> [-d <logsDir] [-l <logFile>] [-o <dbHost>] [-n <dbName>]
-#+     [-p dbPort] [-r sourceDir>] [-t <targetDir>] [-chiqv] ACTION
+#+   ${SCRIPT_NAME} -s dbPassword -u <dbUsername> -e <sdkVersion> [-d <logsDir] [-l <logFile>] [-o <dbHost>]
+#+     [-n <dbName>] [-p dbPort] [-r sourceDir>] [-t <targetDir>] [-chiqv] ACTION
 #%
 #% DESCRIPTION
 #%   Processes a folder with Asciidoc files and Freemarker templates using Metadata Converter and a database.
@@ -19,9 +19,11 @@
 #=============================================================================================================
 #%   ACTION     The action to perform. Accepted values:
 #%              - process_templates: Processes the source folder and generates Asciidoc with values from database.
+#%              - generate_site: Generates a local documentation site using Antora.
 #%              - preview: Generates a local documentation site using Antora and starts a live preview server.
 #%   -c         Enables usage of colours in logging.
 #%   -d DIR     Define the directory for logs (default: "logs"). Ignored if option -l is used.
+#%   -e STRING  Target eForms SDK version.
 #%   -h         Print this help.
 #%   -i         Print script information
 #%   -l FILE    Log messages to FILE. If not set, a time-based log is used.
@@ -41,11 +43,15 @@
 #%   -v         Be verbose.
 #%
 #% EXAMPLES
-#%  - Process using defaults: ${SCRIPT_NAME} -u myuser -s mypassword
-#%  - Process using database "dramempe.cc.cec.eu.int:3306":
-#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword
-#%  - Process specifying input and output folder:
-#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword -r source_dir -t build
+#%  - Generate Asciidoc using defaults: ${SCRIPT_NAME} -u myuser -s mypassword -e 1.1.0 process_templates
+#%  - Generate Asciidoc using database "dramempe.cc.cec.eu.int:3306":
+#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword -e 1.1.0 process_templates
+#%  - Generate Asciidoc specifying input and output folder:
+#%    ${SCRIPT_NAME} -o dramempe.cc.cec.eu.int -p 3306 -u myuser -s mypassword -e 1.1.0 -r source_dir -t build process_templates
+#%  - Generate local documentation site using defaults:
+#%    ${SCRIPT_NAME} -u myuser -s mypassword -e 1.1.0 generate_site
+#%  - Generate local documentation site with a live preview using defaults:
+#%    ${SCRIPT_NAME} -u myuser -s mypassword -e 1.1.0 preview
 #%
 #=============================================================================================================
 #- IMPLEMENTATION
@@ -81,7 +87,7 @@ SESSION_ID=$(date +%s)
 
 # Configuration variables
 #------------------------
-readonly script_opts="cd:hil:o:p:r:s:qt:u:v"
+readonly script_opts="cd:e:hil:o:n:p:r:s:qt:u:v"
 
 # Option variables
 #-----------------
@@ -93,6 +99,7 @@ DB_PORT=3306
 DB_NAME=tedcvsrepo
 DB_USERNAME=""
 DB_PASSWORD=""
+EFORMS_VERSION=""
 SOURCE_DIR="${SCRIPT_DIR}/../content"
 TARGET_DIR="${SCRIPT_DIR}/../build/asciidoc"
 
@@ -118,6 +125,7 @@ load_args() {
         case "$o" in
             c) USE_COLOURS=true ;;
             d) LOGS_DIR=${OPTARG} ;;
+            e) EFORMS_VERSION=${OPTARG} ;;
             h) usagefull; exit 0 ;;
             i) scriptinfo; exit 0 ;;
             l) LOG_FILE=${OPTARG} ;;
@@ -144,8 +152,8 @@ load_args() {
 load_verify_props() {
     # Check input arguments
     case ${ACTION} in
-        "process_templates"|"preview") ;;
-        *) die "${INVALID_ARGS}" "Unknown action [${ACTION}]. Accepted values: [process_templates, preview]." ;;
+        "generate_site"|"process_templates"|"preview") ;;
+        *) die "${INVALID_ARGS}" "Unknown action [${ACTION}]. Accepted values: [generate_site, process_templates, preview]." ;;
     esac
 
     [ -z "${TARGET_DIR}" ] && die "${INVALID_ARGS}" "Undefined target directory."
@@ -200,6 +208,7 @@ process_templates() {
     [ -z "${DB_PORT}" ] && die "${INVALID_ARGS}" "Undefined database port."
     [ -z "${DB_USERNAME}" ] && die "${INVALID_ARGS}" "Undefined database username."
     [ -z "${DB_PASSWORD}" ] && die "${INVALID_ARGS}" "Undefined database password."
+    [ -z "${EFORMS_VERSION}" ] && die "${INVALID_ARGS}" "Undefined eForms SDK version."
 
     local _cmd="${SCRIPT_DIR}/mvnw exec:exec@run-processor \
         -f ${SCRIPT_DIR} \
@@ -213,6 +222,9 @@ process_templates() {
 
     _rc=${?}
     [ "${_rc}" != "0" ] && die "${RUNTIME_ERROR}" "Failed to process templates"
+
+    info "Setting eForms SDK version to ${EFORMS_VERSION}."
+    cat "${SOURCE_DIR}/antora.yml"|sed "s|@EFORMS_VERSION@|${EFORMS_VERSION}|g" > "${TARGET_DIR}/antora.yml"
 
     unset_step
 }
@@ -230,8 +242,8 @@ generate_site() {
     cp -pR "${TARGET_DIR}/"* "${PREVIEW_DIR}/content"
     git -C "${PREVIEW_DIR}" init
     cat <<EOM > "${PREVIEW_DIR}/.gitignore"
-    node_modules
-    site
+node_modules
+site
 EOM
     git -C "${PREVIEW_DIR}" add --all
     git -C "${PREVIEW_DIR}" commit -q -m 'Updated content'
@@ -268,7 +280,12 @@ main() {
 
     case ${ACTION} in
         process_templates) process_templates ;;
+        generate_site)
+            process_templates
+            generate_site
+            ;;
         preview)
+            process_templates
             generate_site
             live_preview
             ;;
