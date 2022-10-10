@@ -8,7 +8,7 @@ ${codelist_details.codeList.description}
 <#if codelist_details.codeList.sourceVersion?has_content!false>
 Version:: ${codelist_details.codeList.sourceVersion}
 </#if>
-<#if codelist_details.codeList.sourceCanonicalUri?trim?has_content!false>
+<#if codelist_details.codeList.sourceCanonicalUri!?trim?has_content!false>
 URI:: ${codelist_details.codeList.sourceCanonicalUri}
 </#if> 
 <#if codelist_details.codeList.parentId?has_content!false>
