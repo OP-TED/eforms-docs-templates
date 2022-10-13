@@ -220,7 +220,8 @@ process_templates() {
         -f ${SCRIPT_DIR} \
         -Dasciidoc.templates.dir=${SOURCE_DIR} \
         -Dasciidoc.target.dir=${TARGET_DIR} \
-        -Ddb.host=${DB_HOST} -Ddb.port=${DB_PORT} -Ddb.name=${DB_NAME} -Ddb.username=${DB_USERNAME} -Ddb.password=${DB_PASSWORD}"
+        -Ddb.host=${DB_HOST} -Ddb.port=${DB_PORT} -Ddb.name=${DB_NAME} -Ddb.username=${DB_USERNAME} -Ddb.password=${DB_PASSWORD} \
+        -DskipTests"
 
     debug "Command: used: $(hide_password "${_cmd}")"
 
