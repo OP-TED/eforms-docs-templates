@@ -91,6 +91,8 @@ readonly script_opts="cd:e:hil:o:n:p:r:s:qt:u:v"
 
 # Option variables
 #-----------------
+USE_MVNW=${USE_MVNW:-true}
+
 LOGS_DIR="logs"
 
 ACTION=""
@@ -105,6 +107,8 @@ TARGET_DIR="${SCRIPT_DIR}/../build/asciidoc"
 
 # Miscellaneous variables
 #------------------------
+
+MVN_EXEC="${SCRIPT_DIR}/mvnw"
 
 #==============#
 # SOURCE FILES #
@@ -161,6 +165,8 @@ load_verify_props() {
     # Set defaults for undefined properties
     export BASE_DIR="${SCRIPT_DIR}" # Used by mvnw
 
+    [ "${USE_MVNW}" == "false" ] && [ -n "$(command -v mvn)" ] && MVN_EXEC=mvn
+
     # Set derived properties
     SOURCE_DIR="$(readlink -m "${SOURCE_DIR}")"
     TARGET_DIR="$(readlink -m "${TARGET_DIR}")"
@@ -210,7 +216,7 @@ process_templates() {
     [ -z "${DB_PASSWORD}" ] && die "${INVALID_ARGS}" "Undefined database password."
     [ -z "${EFORMS_VERSION}" ] && die "${INVALID_ARGS}" "Undefined eForms SDK version."
 
-    local _cmd="${SCRIPT_DIR}/mvnw exec:exec@run-processor \
+    local _cmd="${MVN_EXEC} exec:exec@run-processor \
         -f ${SCRIPT_DIR} \
         -Dasciidoc.templates.dir=${SOURCE_DIR} \
         -Dasciidoc.target.dir=${TARGET_DIR} \
