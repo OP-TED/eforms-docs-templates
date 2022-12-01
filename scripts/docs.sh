@@ -4,8 +4,8 @@
 #=============================================================================================================
 
 #% SYNOPSIS
-#+   ${SCRIPT_NAME} -s dbPassword -u <dbUsername> -e <sdkVersion> [-d <logsDir] [-l <logFile>] [-o <dbHost>]
-#+     [-n <dbName>] [-p dbPort] [-r sourceDir>] [-t <targetDir>] [-chiqv] ACTION
+#+   ${SCRIPT_NAME} -s <dbPassword> -u <dbUsername> -e <sdkVersion> [-d <logsDir] [-l <logFile>] [-o <dbHost>]
+#+     [-n <dbName>] [-p <dbPort>] [-r sourceDir>] [-t <targetDir>] [-chiqv] ACTION
 #%
 #% DESCRIPTION
 #%   Processes a folder with Asciidoc files and Freemarker templates using Metadata Converter and a database.
@@ -82,6 +82,7 @@ readonly SCRIPT_DIR="$(dirname "$(readlink -f "${0}")")"
 readonly PROJECT_DIR="${SCRIPT_DIR}/.."
 readonly PREVIEW_DIR="${PROJECT_DIR}/build/preview"
 readonly PREVIEW_SITE_DIR="${PREVIEW_DIR}/site"
+readonly NODE_DIR="${PREVIEW_DIR}/.node"
 
 SESSION_ID=$(date +%s)
 
@@ -236,6 +237,30 @@ process_templates() {
     unset_step
 }
 
+# Installs Yarn and package dependencies
+install_yarn() {
+    set_step yarn-install
+
+    info "Installing Yarn"
+
+    pushd "${PREVIEW_DIR}" 1>/dev/null || return
+
+    # Install corepack
+    npm install --prefix "${NODE_DIR}" corepack
+
+    # Enable corepack
+    "${NODE_DIR}/node_modules/.bin/corepack" enable --install-directory .node
+
+    # Install dependencies
+    "${NODE_DIR}/yarn" install --immutable
+
+    info "Successfully installed Yarn"
+
+    popd 1>/dev/null || return
+
+    unset_step
+}
+
 # Generates a documentation site from the target folder.
 generate_site() {
     set_step site-generate
@@ -257,9 +282,9 @@ EOM
 
     pushd "${PREVIEW_DIR}" 1>/dev/null || return
 
-    npm install
+    install_yarn "${PREVIEW_DIR}"
 
-    SITE_DIR="${PREVIEW_SITE_DIR}" npm run build
+    SITE_DIR="${PREVIEW_SITE_DIR}" "${NODE_DIR}/yarn" run build
 
     info "Successfully generated documentation site under [${PREVIEW_SITE_DIR}]"
 
