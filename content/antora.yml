@@ -5,7 +5,5 @@
 # which is located in the eforms-docs repository
 #
 name: eforms
-version: '@EFORMS_VERSION@'
-asciidoc:
-  attributes:
-    eforms_version: '@EFORMS_VERSION@'
+version: '@EFORMS_VERSION_SHORT@'
+display_version: '@EFORMS_VERSION@'

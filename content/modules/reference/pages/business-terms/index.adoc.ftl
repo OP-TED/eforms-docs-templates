@@ -25,7 +25,7 @@ h| `${term.id}` | ${term.description!""} | `${term.type!"-"}` a| xref:business-t
 </#if>
 </#macro>
 
-The following Business Terms are included in version {eforms_version} of eForms SDK.
+The following Business Terms are included in version {page-component-version} of eForms SDK.
 
 // We display Business Terms grouped by Business Group
 <@bglist groups=business_terms.groups?sort_by("id") level=2 />
