@@ -103,6 +103,10 @@ DB_NAME=tedcvsrepo
 DB_USERNAME=""
 DB_PASSWORD=""
 EFORMS_VERSION=""
+EFORMS_VERSION_MAJOR=""
+EFORMS_VERSION_MINOR=""
+EFORMS_VERSION_PATCH=""
+
 SOURCE_DIR="${SCRIPT_DIR}/../content"
 TARGET_DIR="${SCRIPT_DIR}/../build/asciidoc"
 
@@ -162,6 +166,12 @@ load_verify_props() {
     esac
 
     [ -z "${TARGET_DIR}" ] && die "${INVALID_ARGS}" "Undefined target directory."
+    validate_version "${EFORMS_VERSION}"
+
+    IFS='.' read -ra _version_parts <<< "${EFORMS_VERSION}"
+    EFORMS_VERSION_MAJOR=${_version_parts[0]}
+    EFORMS_VERSION_MINOR=${_version_parts[1]:-0}
+    EFORMS_VERSION_PATCH=${_version_parts[2]:-0}
 
     # Set defaults for undefined properties
     export BASE_DIR="${SCRIPT_DIR}" # Used by mvnw
@@ -171,6 +181,17 @@ load_verify_props() {
     # Set derived properties
     SOURCE_DIR="$(readlink -m "${SOURCE_DIR}")"
     TARGET_DIR="$(readlink -m "${TARGET_DIR}")"
+}
+
+# Validates a version string.
+# A valid version follows the format <major>.<minor>.<patch>, where "major" and "minor" are numbers and "patch" an alphanumeric sequence.
+validate_version() {
+  local _version="${1}"
+
+  [ -z "${_version}" ] && die "${INVALID_ARGS}" "Undefined version string."
+  local _regexp='^([0-9]+)(\.[0-9]+)?(\.[a-zA-Z0-9_-]+)?$'
+
+  [[ ! ${_version} =~ ${_regexp} ]] && die "${INVALID_ARGS}" "[${_version}] is not a valid version. It should follow the format <major>.<minor>.<patch>"
 }
 
 # Tasks to execute when script exits.
@@ -232,9 +253,10 @@ process_templates() {
     [ "${_rc}" != "0" ] && die "${RUNTIME_ERROR}" "Failed to process templates"
 
     info "Setting eForms SDK version to ${EFORMS_VERSION}."
-    cat "${SOURCE_DIR}/antora.yml"|sed "s|@EFORMS_VERSION@|${EFORMS_VERSION}|g" > "${TARGET_DIR}/antora.yml"
+    cat "${SOURCE_DIR}/antora.yml"|sed "s|@EFORMS_VERSION_MAJOR@|${EFORMS_VERSION_MAJOR}|g;s|@EFORMS_VERSION_MINOR@|${EFORMS_VERSION_MINOR}|g;s|@EFORMS_VERSION_PATCH@|${EFORMS_VERSION_PATCH}|g" > "${TARGET_DIR}/antora.yml"
 
     unset_step
+    exit 0
 }
 
 # Installs Yarn and package dependencies
