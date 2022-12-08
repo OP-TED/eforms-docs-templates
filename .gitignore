@@ -6,6 +6,10 @@ antora-playbook-local.yml
 
 # NodeJS
 node_modules
+.node
+.yarn
+.pnp.cjs
+.pnp.loader.mjs
 
 # Eclipse
 .classpath
