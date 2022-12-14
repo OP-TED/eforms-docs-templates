@@ -10,31 +10,19 @@ require('global-agent/bootstrap')
 
 const connect = require('gulp-connect')
 const fs = require('fs')
-
-var generator
-var playbookGenerator
-
-if (process.env['SEARCH_ENABLED'] === 'true') {
-    process.env['DOCSEARCH_ENABLED'] = true
-    process.env['DOCSEARCH_ENGINE'] = 'lunr'
-    generator = require('antora-eui-site-generator-lunr')
-    playbookGenerator = 'antora-eui-site-generator-lunr'
-} else {
-    generator = require('@antora/site-generator-default')
-    playbookGenerator = 'site-generator-default'
-}
+const generator = require('@antora/site-generator-default')
+const yaml = require('js-yaml')
 
 const { ncp: ncp } = require('ncp')
 const { reload: livereload } = process.env.LIVERELOAD === 'true' ? require('gulp-connect') : {}
 const { series, src, watch } = require('gulp')
-const yaml = require('js-yaml')
 
 const templatesSourceDir = process.env['TEMPLATES_SOURCE_DIR'] || 'build/asciidoc'
 const playbookFilename = process.env['ANTORA_PLAYBOOK'] || 'antora-playbook.yml'
 const playbook = yaml.safeLoad(fs.readFileSync(playbookFilename, 'utf8'))
 const outputDir = process.env['SITE_DIR'] || (playbook.output || {}).dir || 'build/site'
 const serverConfig = { name: 'Preview Site', livereload, port: 5000, root: outputDir }
-const antoraArgs = ['--playbook', playbookFilename, '--generator', playbookGenerator, '--to-dir', outputDir ]
+const antoraArgs = ['--playbook', playbookFilename, '--to-dir', outputDir ]
 const sourceWatchPatterns = playbook.content.sources.filter((source) => !source.url.includes(':')).reduce((accum, source) => {
     accum.push(`${source.url}/${source.start_path ? source.start_path + '/' : ''}antora.yml`)
     accum.push(`${source.url}/${source.start_path ? source.start_path + '/' : ''}**/*.adoc`)
