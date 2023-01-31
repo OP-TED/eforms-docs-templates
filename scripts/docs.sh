@@ -256,7 +256,6 @@ process_templates() {
     cat "${SOURCE_DIR}/antora.yml"|sed "s|@EFORMS_VERSION_MAJOR@|${EFORMS_VERSION_MAJOR}|g;s|@EFORMS_VERSION_MINOR@|${EFORMS_VERSION_MINOR}|g;s|@EFORMS_VERSION_PATCH@|${EFORMS_VERSION_PATCH}|g" > "${TARGET_DIR}/antora.yml"
 
     unset_step
-    exit 0
 }
 
 # Installs Yarn and package dependencies
@@ -292,7 +291,7 @@ generate_site() {
     debug "Copying Antora resources and scripts to [${PREVIEW_DIR}]"
     mkdir -p "${PREVIEW_DIR}/content"
 
-    cp -pR "${SCRIPT_DIR}/antora/"* "${PREVIEW_DIR}"
+    cp -pR "${SCRIPT_DIR}/antora/"{*,.*} "${PREVIEW_DIR}"
     cp -pR "${TARGET_DIR}/"* "${PREVIEW_DIR}/content"
     git -C "${PREVIEW_DIR}" init
     cat <<EOM > "${PREVIEW_DIR}/.gitignore"
@@ -322,7 +321,7 @@ live_preview() {
     info "Starting HTTP server to preview the generated documentation site."
 
     pushd "${PREVIEW_DIR}" 1>/dev/null || return
-    LIVERELOAD=true TEMPLATES_SOURCE_DIR="${TARGET_DIR}" SITE_DIR="${PREVIEW_SITE_DIR}" npm run live-preview
+    TEMPLATES_SOURCE_DIR="${TARGET_DIR}" SITE_DIR="${PREVIEW_SITE_DIR}" "${NODE_DIR}/yarn" run live-preview
     popd 1>/dev/null || return
 
     unset_step
