@@ -14,10 +14,11 @@ The following rules apply to every notice (grouped by type of rule):
 
 <#list rules_without_notice_sub_type as ruleType>
 === `${ruleType.type!"-"}`
-[cols="<4,<6,>1", role="fixed-layout"]
+[cols="<4,4,<6,>1", role="fixed-layout"]
 |====
-h| Field h|Details h|Severity 
+h| Business Rule h| Field h|Details h|Severity
 <#list ruleType.rules as rule>
+h|<#if rule.id?has_content!false>`${rule.id}`</#if>
 h|<#if rule.fieldId?has_content!false>`${rule.fieldId}`</#if>
 a|<#if rule.pattern?has_content!false>
 .RegEx pattern
