@@ -1,7 +1,10 @@
 = eForms Metadata Reference
 
+NOTE: This information is specific to eForms SDK {page-component-version}.
+
 This section of the eForms SDK documentation is auto-generated from our central metadata repository. 
 The information in this section is therefore identical to the metadata included in the corresponding version of the eForms SDK ({page-component-version}).
+
 
 == Contents
 
@@ -12,4 +15,28 @@ Every Business Rule included in SDK {page-component-version} together with all d
 * xref:eforms:reference:code-lists/index.adoc[Codelists] +
 All codelists included in eFroms SDK {page-component-version}, together with their respective codes, their usage in eForms fields as well as their relationships to each-other (tailored codelists).
 
-NOTE: This information is specific to eForms SDK {page-component-version}.
+== Downloads
+
+NOTE: This is to help with business analysis, these files are not meant to be used by software developers.
+
+=== Nodes and fields
+
+* xref:attachment$nodes.csv[Nodes CSV file]
+* xref:attachment$fields.csv[Fields CSV file]
+
+=== Notices
+
+* xref:attachment$notices.csv[Notices CSV file]
+
+=== Business rules
+
+Download in CSV format (excel can read it):
+* xref:attachment$pattern-rules.csv[Pattern rules]
+* xref:attachment$interval-rules.csv[Interval rules]
+* xref:attachment$codelist-rules.csv[Codelist rules]
+* xref:attachment$repeatability-rules.csv[Repeatability rules]
+* xref:attachment$changeability-rules.csv[Changeability rules]
+* xref:attachment$forbidden-rules.csv[Forbidden rules]
+* xref:attachment$mandatory-rules.csv[Mandatory rules]
+* xref:attachment$coconstraint-rules.csv[Co-constraint rules]
+* xref:attachment$lawfulness-rules.csv[Lawfulness rules]
