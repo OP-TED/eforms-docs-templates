@@ -3,10 +3,11 @@
 
 <#list notice_type_details.ruleTypes?sort_by("type") as ruleType>
 == `${ruleType.type!"-"}`
-[cols="<3,<6,>1", role="fixed-layout"]
+[cols="<3,3,<6,>1", role="fixed-layout"]
 |====
-h| Field h|Details h|Severity 
+h| Business Rule h| Field h|Details h|Severity
 <#list ruleType.rules as rule>
+h|<#if rule.id?has_content!false>`${rule.id}`</#if>
 h|<#if rule.fieldId?has_content!false>`${rule.fieldId}`</#if>
 a|<#if rule.pattern?has_content!false>
 .RegEx pattern
