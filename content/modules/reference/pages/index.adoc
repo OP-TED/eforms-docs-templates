@@ -35,7 +35,13 @@ Download information on notice subtypes as a CSV file:
 
 === Business rules
 
-Download rules in CSV format:
+Download rules in CSV format.
+
+All rule types:
+
+* xref:attachment$business-rules.csv[All]
+
+Specific rule types:
 
 * xref:attachment$forbidden-rules.csv[Forbidden]
 * xref:attachment$mandatory-rules.csv[Mandatory]
