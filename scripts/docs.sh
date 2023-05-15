@@ -27,6 +27,8 @@
 #%   -h         Print this help.
 #%   -i         Print script information
 #%   -l FILE    Log messages to FILE. If not set, a time-based log is used.
+#%   -m STRING  MDC version to use.
+#%              Default value: The version declared on the POM with the property "mdc.version"
 #%   -n STRING  Database name.
 #%              Default value: tedcvsrepo
 #%   -o STRING  Database host.
@@ -88,7 +90,7 @@ SESSION_ID=$(date +%s)
 
 # Configuration variables
 #------------------------
-readonly script_opts="cd:e:hil:o:n:p:r:s:qt:u:v"
+readonly script_opts="cd:e:hil:m:n:o:p:r:s:qt:u:v"
 
 # Option variables
 #-----------------
@@ -106,6 +108,7 @@ EFORMS_VERSION=""
 EFORMS_VERSION_MAJOR=""
 EFORMS_VERSION_MINOR=""
 EFORMS_VERSION_PATCH=""
+MDC_VERSION=""
 
 SOURCE_DIR="${SCRIPT_DIR}/../content"
 TARGET_DIR="${SCRIPT_DIR}/../build/asciidoc"
@@ -138,6 +141,7 @@ load_args() {
             h) usagefull; exit 0 ;;
             i) scriptinfo; exit 0 ;;
             l) LOG_FILE=${OPTARG} ;;
+            m) MDC_VERSION=${OPTARG} ;;
             n) DB_NAME=${OPTARG:-${DB_NAME}} ;;
             o) DB_HOST=${OPTARG:-${DB_HOST}} ;;
             p) DB_PORT=${OPTARG:-${DB_PORT}} ;;
@@ -244,6 +248,7 @@ process_templates() {
         -Dasciidoc.target.dir=${TARGET_DIR} \
         -Ddb.host=${DB_HOST} -Ddb.port=${DB_PORT} -Ddb.name=${DB_NAME} -Ddb.username=${DB_USERNAME} -Ddb.password=${DB_PASSWORD} \
         -DskipTests"
+    [ -n "${MDC_VERSION}" ] && _cmd+=" -Dmdc.version=${MDC_VERSION}"
 
     debug "Command: used: $(hide_password "${_cmd}")"
 
