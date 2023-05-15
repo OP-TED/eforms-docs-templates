@@ -12,7 +12,7 @@
 
     <properties>
         <!-- Metadata Converter version -->
-        <mdc.version>1.7.0-SNAPSHOT</mdc.version>
+        <mdc.version>1.8.0-SNAPSHOT</mdc.version>
 
         <!-- Plugins versions -->
         <exec.plugin.version>3.0.0</exec.plugin.version>
