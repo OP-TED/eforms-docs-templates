@@ -8,8 +8,8 @@
 #+     [-n <dbName>] [-p <dbPort>] [-r sourceDir>] [-t <targetDir>] [-chiqv] ACTION
 #%
 #% DESCRIPTION
-#%   Processes a folder with Asciidoc files and Freemarker templates using Metadata Converter and a database.
-#%   The Medatata Converter executable is downloaded as a Maven dependency.
+#%   Processes a folder with Asciidoc files and Freemarker templates using Metadata Manager CLI and a database.
+#%   The Metadata Manager command line application (mdm-cli) is downloaded as a Maven dependency.
 #%   The output is a folder with:
 #%     - The ".adoc" files kept intact
 #%     - ".adoc" files generated from Freemarker the templates ("*.ftl") and populated
@@ -27,8 +27,8 @@
 #%   -h         Print this help.
 #%   -i         Print script information
 #%   -l FILE    Log messages to FILE. If not set, a time-based log is used.
-#%   -m STRING  MDC version to use.
-#%              Default value: The version declared on the POM with the property "mdc.version"
+#%   -m STRING  MDM version to use for mdm-cli.
+#%              Default value: The version declared on the POM with the property "mdm.version"
 #%   -n STRING  Database name.
 #%              Default value: tedcvsrepo
 #%   -o STRING  Database host.
@@ -108,7 +108,7 @@ EFORMS_VERSION=""
 EFORMS_VERSION_MAJOR=""
 EFORMS_VERSION_MINOR=""
 EFORMS_VERSION_PATCH=""
-MDC_VERSION=""
+MDM_VERSION=""
 
 SOURCE_DIR="${SCRIPT_DIR}/../content"
 TARGET_DIR="${SCRIPT_DIR}/../build/asciidoc"
@@ -141,7 +141,7 @@ load_args() {
             h) usagefull; exit 0 ;;
             i) scriptinfo; exit 0 ;;
             l) LOG_FILE=${OPTARG} ;;
-            m) MDC_VERSION=${OPTARG} ;;
+            m) MDM_VERSION=${OPTARG} ;;
             n) DB_NAME=${OPTARG:-${DB_NAME}} ;;
             o) DB_HOST=${OPTARG:-${DB_HOST}} ;;
             p) DB_PORT=${OPTARG:-${DB_PORT}} ;;
@@ -248,7 +248,7 @@ process_templates() {
         -Dasciidoc.target.dir=${TARGET_DIR} \
         -Ddb.host=${DB_HOST} -Ddb.port=${DB_PORT} -Ddb.name=${DB_NAME} -Ddb.username=${DB_USERNAME} -Ddb.password=${DB_PASSWORD} \
         -DskipTests"
-    [ -n "${MDC_VERSION}" ] && _cmd+=" -Dmdc.version=${MDC_VERSION}"
+    [ -n "${MDM_VERSION}" ] && _cmd+=" -Dmdm.version=${MDM_VERSION}"
 
     debug "Command: used: $(hide_password "${_cmd}")"
 
