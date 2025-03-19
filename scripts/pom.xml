@@ -15,7 +15,7 @@
         <mdc.version>1.8.0-SNAPSHOT</mdc.version>
 
         <!-- Plugins versions -->
-        <exec.plugin.version>3.0.0</exec.plugin.version>
+        <exec.plugin.version>3.5.0</exec.plugin.version>
 
         <db.host>localhost</db.host>
         <db.port>3306</db.port>
