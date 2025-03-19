@@ -46,14 +46,6 @@
         <name>EU Maven Repository</name>
         <url>https://webgate.ec.europa.eu/CITnet/nexus/content/repositories/op-snapshots/</url>
       </repository>
-      <repository>
-        <id>op-ted-github_mdd-entities</id>
-        <name>OP-TED GitHub Packages - eForms Metadata Entities</name>
-        <url>https://maven.pkg.github.com/OP-TED/eforms-metadata-entities/</url>
-        <snapshots>
-          <enabled>true</enabled>
-        </snapshots>
-      </repository>
     </repositories>
 
     <build>
