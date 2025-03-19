@@ -11,8 +11,8 @@
     <description></description>
 
     <properties>
-        <!-- Metadata Converter version -->
-        <mdc.version>1.8.0-SNAPSHOT</mdc.version>
+        <!-- Metadata Manager version -->
+        <mdm.version>1.15.0-SNAPSHOT</mdm.version>
 
         <!-- Plugins versions -->
         <exec.plugin.version>3.5.0</exec.plugin.version>
@@ -28,10 +28,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>eu.europa.ted.eforms</groupId>
-            <artifactId>eforms-metadata-converter</artifactId>
-	    <version>${mdc.version}</version>
-	    <classifier>app</classifier>
+            <groupId>eu.europa.ted.eforms.mdm</groupId>
+            <artifactId>mdm-cli</artifactId>
+            <version>${mdm.version}</version>
+            <classifier>app</classifier>
         </dependency>
     </dependencies>
 
@@ -64,8 +64,8 @@
                             <configuration>
                                 <executable>java</executable>
                                 <executableDependency>
-                                    <groupId>eu.europa.ted.eforms</groupId>
-                                    <artifactId>eforms-metadata-converter</artifactId>
+                                    <groupId>eu.europa.ted.eforms.mdm</groupId>
+                                    <artifactId>mdm-cli</artifactId>
                                 </executableDependency>
                                 <arguments>
                                     <argument>-classpath</argument>
