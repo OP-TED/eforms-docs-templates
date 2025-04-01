@@ -242,7 +242,7 @@ process_templates() {
     [ -z "${DB_PASSWORD}" ] && die "${INVALID_ARGS}" "Undefined database password."
     [ -z "${EFORMS_VERSION}" ] && die "${INVALID_ARGS}" "Undefined eForms SDK version."
 
-    local _cmd="${MVN_EXEC} exec:exec@run-processor \
+    local _cmd="${MVN_EXEC} -B exec:exec@run-processor \
         -f ${SCRIPT_DIR} \
         -Dasciidoc.templates.dir=${SOURCE_DIR} \
         -Dasciidoc.target.dir=${TARGET_DIR} \
