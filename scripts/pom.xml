@@ -11,11 +11,11 @@
     <description></description>
 
     <properties>
-        <!-- Metadata Converter version -->
-        <mdc.version>1.8.0-SNAPSHOT</mdc.version>
+        <!-- Metadata Manager version -->
+        <mdm.version>1.15.0-SNAPSHOT</mdm.version>
 
         <!-- Plugins versions -->
-        <exec.plugin.version>3.0.0</exec.plugin.version>
+        <exec.plugin.version>3.5.0</exec.plugin.version>
 
         <db.host>localhost</db.host>
         <db.port>3306</db.port>
@@ -28,10 +28,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>eu.europa.ted.eforms</groupId>
-            <artifactId>eforms-metadata-converter</artifactId>
-	    <version>${mdc.version}</version>
-	    <classifier>app</classifier>
+            <groupId>eu.europa.ted.eforms.mdm</groupId>
+            <artifactId>mdm-cli</artifactId>
+            <version>${mdm.version}</version>
+            <classifier>app</classifier>
         </dependency>
     </dependencies>
 
@@ -45,14 +45,6 @@
         <id>op-snapshots-maven-repo</id>
         <name>EU Maven Repository</name>
         <url>https://webgate.ec.europa.eu/CITnet/nexus/content/repositories/op-snapshots/</url>
-      </repository>
-      <repository>
-        <id>op-ted-github_mdd-entities</id>
-        <name>OP-TED GitHub Packages - eForms Metadata Entities</name>
-        <url>https://maven.pkg.github.com/OP-TED/eforms-metadata-entities/</url>
-        <snapshots>
-          <enabled>true</enabled>
-        </snapshots>
       </repository>
     </repositories>
 
@@ -72,8 +64,8 @@
                             <configuration>
                                 <executable>java</executable>
                                 <executableDependency>
-                                    <groupId>eu.europa.ted.eforms</groupId>
-                                    <artifactId>eforms-metadata-converter</artifactId>
+                                    <groupId>eu.europa.ted.eforms.mdm</groupId>
+                                    <artifactId>mdm-cli</artifactId>
                                 </executableDependency>
                                 <arguments>
                                     <argument>-classpath</argument>
