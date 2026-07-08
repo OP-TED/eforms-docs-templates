@@ -15,7 +15,7 @@ h| `${term.id}` | ${term.description!""} | `${term.type!"-"}` a| xref:business-t
 <#if groups?has_content>
 <#list groups as group>
 [#${group.id}]
-<#list 0..<level as i>=</#list> `${group.id}`: ${group.description}
+<#list 0..<level as i>=</#list> `${group.id}`: ${group.description!""}
 <@btlist terms=group.terms />
 <#if group.childGroups?has_content>
 <#assign next=level+1 />
