@@ -22,3 +22,7 @@ node_modules
 # Maven
 target
 
+# Generated output from test runs
+scripts/modules
+scripts/antora.yml
+scripts/README.md
