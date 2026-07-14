@@ -31,10 +31,11 @@ ${rule.pattern.value?replace("|", "\\|")}
 <#else>
 *${word?cap_first} if* ${rule.condition.description}.
 
+<#-- TEDEFO-4238: escape '|' to '\|' so pipes in the EFX don't break the AsciiDoc table. -->
 .Condition in EFX
 [source, EFX]
 ----
-${rule.condition.expressionEfx}
+${rule.condition.expressionEfx?replace("|", "\\|")}
 ----
 </#if>
 <#else>

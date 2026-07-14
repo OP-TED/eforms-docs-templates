@@ -42,10 +42,17 @@ Value must be one of the codes in xref:code-lists/${rule.codeListId}.adoc[`${rul
 <#if rule.expression?has_content!false>
 ${rule.expression.description?cap_first!""}.
 
+<#-- TEDEFO-4238: an EFX expression can contain '|' (e.g. a regex literal like
+     '(T|t)'). '|' is the AsciiDoc table cell separator, so an unescaped pipe
+     breaks this table; it must be escaped to '\|' via ?replace.
+     The parentheses around (expressionEfx!"") are REQUIRED: FreeMarker's ?builtin
+     binds tighter than the ! default operator, so 'expressionEfx!""?replace(...)'
+     parses as 'expressionEfx ! ("" ?replace(...))' and emits non-empty values
+     UNESCAPED. Keep the parentheses. -->
 .Co-constraint in EFX
 [source, EFX]
 ----
-${rule.expression.expressionEfx!""?replace("|", "\\|")}
+${(rule.expression.expressionEfx!"")?replace("|", "\\|")}
 ----
 </#if>
 <#if rule.condition?has_content!false>
@@ -56,6 +63,7 @@ ${rule.expression.expressionEfx!""?replace("|", "\\|")}
 <#else>
 *${word?cap_first} if* ${rule.condition.description}.
 
+<#-- TEDEFO-4238: escape '|' to '\|' so pipes in the EFX don't break the AsciiDoc table. -->
 .Condition in EFX
 [source, EFX]
 ----
