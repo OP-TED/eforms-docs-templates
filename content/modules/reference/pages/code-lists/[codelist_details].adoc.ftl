@@ -19,7 +19,10 @@ Tailored by:: ${codelist_details.tailored?map(tcl -> "xref:code-lists/" + tcl.id
 </#if>
 <#if codelist_details.codeList.type?has_content!false>
 Structure:: ${codelist_details.codeList.type}
-</#if> 
+</#if>
+<#if (codelist_details.codeList.official!false) && codelist_details.codeList.sourceLongNameListId?has_content!false>
+EU Vocabularies:: https://op.europa.eu/en/web/eu-vocabularies/concept-scheme/-/resource?uri=${codelist_details.codeList.sourceLongNameListId}[View on EU Vocabularies^]
+</#if>
 <#if codelist_details.businessTerms?has_content!false>
 Used in:: ${codelist_details.businessTerms?map(bt -> "xref:business-terms/" + bt.id + ".adoc[`" + bt.id + "`] " + bt.description)?join(", ")}
 </#if>
